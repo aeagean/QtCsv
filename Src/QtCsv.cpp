@@ -26,10 +26,12 @@ bool QtCsv::open(const QString &fileName)
     }
 }
 
-bool QtCsv::readAll(QList<QVariantMap> &results)
+QList<QVariantMap> QtCsv::readAll()
 {
+    QList<QVariantMap> data;
+
     if (m_file == NULL)
-        return false;
+        return data;
 
     bool isFirstLine = true;
     QStringList titles;
@@ -50,10 +52,10 @@ bool QtCsv::readAll(QList<QVariantMap> &results)
             item[titles[i]] = contents.at(i);
         }
 
-        results.append(item);
+        data.append(item);
     }
 
-    return true;
+    return data;
 }
 
 bool QtCsv::write(const QList<QVariantMap> &maps)

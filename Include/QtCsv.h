@@ -12,7 +12,7 @@ public:
     virtual ~QtCsv();
 
     bool open(const QString &fileName);
-    bool readAll(QList<QVariantMap> &results);
+    QList<QVariantMap> readAll();
     bool write(const QList<QVariantMap> &maps);
     void close();
 
