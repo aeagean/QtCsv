@@ -50,9 +50,11 @@ QList<QVariantMap> QtCsv::readAll()
         for (int i = 0; i < contents.count(); i++) {
             if (i >= titles.count())
                 continue;
-            item[titles[i]] = contents.at(i);
+
+            item.insert(item.find(titles[i]), titles[i], contents.at(i));
         }
 
+        qDebug()<<item.keys();
         data.append(item);
     }
 
@@ -64,17 +66,9 @@ bool QtCsv::write(const QList<QVariantMap> &maps)
     if (m_file == NULL)
         return false;
 
+    m_file->resize(0);
+
     /* 将内容写入到文件 */
-//    QTextCodec *codec = QTextCodec::codecForName("GB18030");
-//    if (codec == NULL) {
-//        qDebug()<<"[Error] Can't find GB18030 codec.";
-//        return false;
-//    }
-
-//    QByteArray encodedString = codec->fromUnicode(QString::fromUtf8("名称,型号,一级类别,二级类别,价格,性能特点,产品描述,代表厂家,\n"));
-//    filelength += encodedString.size();
-//    m_file->write(encodedString);
-
     QString content;
     QString titles;
     for (int i = 0; i < maps.size(); i++) {
@@ -86,20 +80,20 @@ bool QtCsv::write(const QList<QVariantMap> &maps)
 
             if (i == 0) {
                 titles.append(QString("%1,").arg(iter.key()));
-                if (i < maps.size() -1 )
+                if (!iter.hasNext())
                     titles.append(QString("\n"));
             }
             else {
                 content.append(QString("%1,").arg(iter.value().toString()));
-                if (i < maps.size() -1 )
+                if (!iter.hasNext())
                     content.append(QString("\n"));
             }
         }
 
         if (i == 0)
-            m_file->write(titles.toStdString().c_str(), titles.size());
+            m_file->write(titles.toLocal8Bit(), titles.size());
 
-        m_file->write(content.toStdString().c_str(), content.size());
+        m_file->write(content.toLocal8Bit(), content.size());
     }
 
     return true;
