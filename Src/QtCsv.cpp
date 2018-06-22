@@ -38,8 +38,9 @@ QList<QVariantMap> QtCsv::readAll()
 
     while (!m_file->atEnd()) {
         QByteArray line = m_file->readLine();
-        QStringList contents = QString(line.toStdString().data()).split(',', QString::SkipEmptyParts);
-
+        QStringList contents = QString::fromLocal8Bit(line)
+                               .simplified()
+                               .split(',', QString::SkipEmptyParts);
         if (isFirstLine) {
             isFirstLine = false;
             titles = contents;
