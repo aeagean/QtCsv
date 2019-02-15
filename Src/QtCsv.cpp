@@ -26,6 +26,47 @@ bool QtCsv::open(const QString &fileName)
     }
 }
 
+QStringList QtCsv::splitCSVLine(const QString &lineStr)
+{
+    QStringList strList;
+    QString str;
+
+    int length = lineStr.count();
+    int usageCount = 0;
+    int repeatCount = 0;
+
+    for(int i = 0; i < length; ++i) {
+        if(lineStr[i] != '\"') {
+            repeatCount = 0;
+            if(lineStr[i] != ',') {
+                str.append(lineStr[i]);
+            }
+            else {
+                if(usageCount % 2) {
+                    str.append(',');
+                }
+                else {
+                    strList.append(str.trimmed());
+                    usageCount = 0;
+                    str.clear();
+                }
+            }
+        }
+        else {
+            ++usageCount;
+            ++repeatCount;
+            if(repeatCount == 4) {
+                str.append('\"');
+                repeatCount = 0;
+                usageCount -= 4;
+            }
+        }
+    }
+    strList.append(str.trimmed());
+
+    return strList;
+}
+
 QList<QVariantMap> QtCsv::readAll()
 {
     QList<QVariantMap> data;
@@ -38,9 +79,8 @@ QList<QVariantMap> QtCsv::readAll()
 
     while (!m_file->atEnd()) {
         QByteArray line = m_file->readLine();
-        QStringList contents = QString::fromLocal8Bit(line)
-                               .simplified()
-                               .split(',', QString::SkipEmptyParts);
+        QStringList contents = splitCSVLine(QString::fromLocal8Bit(line));
+        qDebug()<<contents;
         if (isFirstLine) {
             isFirstLine = false;
             titles = contents;
@@ -51,10 +91,9 @@ QList<QVariantMap> QtCsv::readAll()
             if (i >= titles.count())
                 continue;
 
-            item.insert(item.find(titles[i]), titles[i], contents.at(i));
+            item.insert(/*item.find(titles[i]), */titles[i], contents.at(i));
         }
 
-        qDebug()<<item.keys();
         data.append(item);
     }
 

@@ -17,6 +17,9 @@ public:
     void close();
 
 private:
+    QStringList splitCSVLine(const QString &lineStr);
+
+private:
     QFile *m_file;
 };
 
